@@ -21,6 +21,10 @@ def index():
     instid_list = list()
     for i in person.institutions:
         instid_list.append(i.instid)
-    return "{crsid} at {inst}".format(crsid=crsid, inst=str(instid_list))
+    if 'KINGSUG' in instid_list or 'KINGSPG' in instid_list:
+        return "King's Member!"
+    else:
+        return "Not a King's Member."
+        
 
 
