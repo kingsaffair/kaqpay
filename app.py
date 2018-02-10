@@ -36,12 +36,9 @@ def test_response():
     if param is not None:
         enc = parse.unquote(param)
         # The following only works with symetric ones.
-        print(enc)
         result = jwt.decode(enc, key=app.config.get('JWT_KEY'), algorithms=[app.config.get('JWT_ALGORITHM')])
         return str(result)
     else:
         return "Pass in a JWT."
     
 
-if __name__ == "__main__":
-    app.run()
