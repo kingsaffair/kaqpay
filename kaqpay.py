@@ -10,7 +10,7 @@ app.config.from_object('config')
 
 def getIbis():
     if getattr(g, 'conn', None) is None:
-        g.conn = createTestConnection()
+        g.conn = createConnection()
     if getattr(g, 'methods', None) is None:
         g.methods = PersonMethods(g.conn)
     return g.methods
