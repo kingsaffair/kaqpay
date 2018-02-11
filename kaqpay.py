@@ -1,4 +1,4 @@
-from flask import Flask, request, g, current_app, redirect
+from flask import Flask, request, g, current_app, redirect, jsonify
 from werkzeug.local import LocalProxy
 from ibisclient import *
 from functools import reduce
@@ -37,8 +37,8 @@ def test_response():
         enc = parse.unquote(param)
         # The following only works with symetric ones.
         result = jwt.decode(enc, key=app.config.get('JWT_KEY'), algorithms=[app.config.get('JWT_ALGORITHM')])
-        return str(result)
+        return jsonify(result)
     else:
-        return "Pass in a JWT."
+        return jsonify({'error': 'Pass in a JWT.'})
     
 
