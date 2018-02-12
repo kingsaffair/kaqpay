@@ -14,16 +14,19 @@ class MaxLevelFilter(logging.Filter):
         self.level = level
 
     def filter(self, record):
-        return record.levelno < self.level
+        return record.levelno <= self.level
 
 
 app = Flask(__name__)
 app.config.from_object('config')
 
+app.logger.setLevel(logging.INFO)
+
 stdout = logging.StreamHandler(stream=sys.stdout)
-stdout.setLevel(logging.INFO)
-stdout.addFilter(MaxLevelFilter(logging.WARNING))
 stderr = logging.StreamHandler(stream=sys.stderr)
+
+stdout.addFilter(MaxLevelFilter(logging.WARNING))
+stdout.setLevel(logging.INFO)
 stderr.setLevel(logging.ERROR)
 
 fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
