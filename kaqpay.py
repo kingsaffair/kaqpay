@@ -5,8 +5,44 @@ from functools import reduce
 from urllib import parse
 import jwt
 
+import sys
+import logging
+from logging.handlers import SMTPHandler
+
+class MaxLevelFilter(logging.Filter):
+    def __init__(self, level):
+        self.level = level
+
+    def filter(self, record):
+        return record.levelno < self.level
+
+
 app = Flask(__name__)
 app.config.from_object('config')
+
+stdout = logging.StreamHandler(stream=sys.stdout)
+stdout.setLevel(logging.INFO)
+stdout.addFilter(MaxLevelFilter(logging.WARNING))
+stderr = logging.StreamHandler(stream=sys.stderr)
+stderr.setLevel(logging.ERROR)
+
+fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+stdout.setFormatter(fmt)
+stderr.setFormatter(fmt)
+
+app.logger.addHandler(stdout)
+app.logger.addHandler(stderr)
+
+if app.config.get('SMTP'):
+    mail = SMTPHandler(
+            mailhost=app.config.get('SMTP_HOST'),
+            fromaddr=app.config.get('SMTP_ADDR'),
+            toaddrs=app.config.get('ADMIN_EMAIL'),
+            credentials=app.config.get('SMTP_CREDENTIALS'),
+            subject='KA x Qpay Sign In Error')
+    mail.setFormatter(fmt)
+    mail.setLevel(logging.CRITICAL)
+    app.logger.addHandler(mail)
 
 def getIbis():
     if getattr(g, 'conn', None) is None:
