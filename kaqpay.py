@@ -25,6 +25,7 @@ def index():
     instids = list(map(lambda i: i.instid, person.institutions))
     is_kings = reduce(lambda x, y: x or y, [(i in instids) for i in app.config.get('KINGS')])
     payload = {'email': "{}@cam.ac.uk".format(crsid), 'kings': is_kings}
+    app.logger.info("%s logged in successfully. (kings: %s)", crsid, is_kings)
     encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
     return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_URL'), 
                                           enc=parse.urlencode({'jwt': encoded})))
@@ -35,8 +36,12 @@ def test_response():
     param = request.args.get('jwt')
     if param is not None:
         enc = parse.unquote(param)
-        # The following only works with symetric ones.
-        result = jwt.decode(enc, key=app.config.get('JWT_KEY'), algorithms=[app.config.get('JWT_ALGORITHM')])
+        algo = app.config.get('JWT_ALGORITHM')
+        if algo.startswith('RS'):
+            key = app.config.get('JWT_PUBLIC_KEY')
+        else:
+            key = app.config.get('JWT_KEY')
+        result = jwt.decode(enc, key=key, algorithms=[algo])
         return jsonify(result)
     else:
         return jsonify({'error': 'Pass in a JWT.'})
