@@ -2,3 +2,4 @@ flask
 pyjwt
 cryptography
 bjoern
+python-daemon
