@@ -94,14 +94,14 @@ def test_response():
         res.status_code = 400
         return res
     
-@app.handle_exception(jwt.exceptions.InvalidTokenError)
+@app.errorhandler(jwt.exceptions.InvalidTokenError)
 def handle_invalid_tokens():
     return jsonify({'error': 'Invalid Key.'}), 400
     
-@app.handle_exception(jwt.exceptions.InvalidKeyError)
+@app.errorhandler(jwt.exceptions.InvalidKeyError)
 def handle_invalid_keys():
     return jsonify({'error': 'Invalid Key.'}), 400
 
-@app.handle_exception(AttributeError)
+@app.errorhandler(AttributeError)
 def handle_invalid_tokens():
     return "Wrong way In!", 400
