@@ -4,6 +4,7 @@ from ibisclient import *
 from functools import reduce
 from urllib import parse
 import jwt
+import datetime
 
 import sys
 import logging
@@ -60,10 +61,16 @@ def index():
     person = methods.getPerson("crsid", crsid, fetch="all_insts")
     instids = list(map(lambda i: i.instid, person.institutions))
     is_kings = reduce(lambda x, y: x or y, [(i in instids) for i in app.config.get('KINGS')])
-    payload = {'email': "{}@cam.ac.uk".format(crsid), 'kings': is_kings}
+    payload = {'email': "{}@cam.ac.uk".format(crsid), 
+               'kings': is_kings, 
+               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
     app.logger.info("%s logged in successfully. (kings: %s)", crsid, is_kings)
     encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
-    return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_URL'), 
+    if is_kings:
+        url = app.config.get('QPAY_KINGS_URL')
+    else:
+        url = app.config.get('QPAY_UNI_URL')
+    return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
 
@@ -80,6 +87,18 @@ def test_response():
         result = jwt.decode(enc, key=key, algorithms=[algo])
         return jsonify(result)
     else:
-        return jsonify({'error': 'Pass in a JWT.'})
+        res = jsonify({'error': 'Pass in a JWT.'})
+        res.status_code = 400
+        return res
     
+@app.handle_exception(jwt.exceptions.InvalidTokenError)
+def handle_invalid_tokens():
+    return jsonify({'error': 'Invalid Key.'}), 400
+    
+@app.handle_exception(jwt.exceptions.InvalidKeyError)
+def handle_invalid_keys():
+    return jsonify({'error': 'Invalid Key.'}), 400
 
+@app.handle_exception(AttributeError)
+def handle_invalid_tokens():
+    return "Wrong way In!", 400
