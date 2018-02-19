@@ -1,4 +1,4 @@
-from flask import Flask, request, g, current_app, redirect, jsonify
+from flask import Flask, request, g, current_app, redirect, jsonify, render_template
 from werkzeug.local import LocalProxy
 from ibisclient import *
 from functools import reduce
@@ -76,8 +76,31 @@ def index():
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
-@app.route('/test_response')
+@app.route('/test/kings')
+def test_kings():
+    payload = {'email': "test01@cam.ac.uk", 
+               'kings': True, 
+               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+    app.logger.info("Testing King's Member URL.")
+    encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
+    return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
+                                          enc=parse.urlencode({'jwt': encoded})))
+
+@app.route('/test/non_kings')
+def test_kings():
+    payload = {'email': "test02@cam.ac.uk", 
+               'kings': False, 
+               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+    app.logger.info("Testing Non-King's University Member URL.")
+    encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
+    return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_UNI_URL'), 
+                                          enc=parse.urlencode({'jwt': encoded})))
+
+@app.route('/test/response')
 def test_response():
     param = request.args.get('jwt')
     if param is not None:

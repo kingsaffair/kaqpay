@@ -1,0 +1,79 @@
+<!DOCTYPE html>	
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>Test KA x QPay Link</title>
+		<style>
+			div {
+				margin-bottom: 30px;
+				width: 100%;
+			}
+			label {
+				display: inline-block;
+				width: 100px;
+				font-weight: bold;
+			}
+			input {
+				margin-bottom: 10px;
+			}
+			#data {
+				display: none;
+			}
+			#error {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div>
+			<a href="/tickets/test/kings">Test King's Member</a> <br />
+			<a href="/tickets/test/non_kings">Test Non-King's Uni Member</a>
+		</div>
+
+		<div>
+			<label>Test Token</label><br />
+			<input id="jwt_input" type="input" />
+			<button id="submit">Submit</button>
+		</div>
+
+		<div id="data">
+			<label>email</label>
+			<input id="email" type="email" disabled /><br />
+
+			<label>King's</label>
+			<input id="kings" type="input" disabled /><br />
+
+			<label>Expiring at</label>
+			<input id="exp" type="input" disabled /><br />
+		</div>
+
+		<div id="error">
+			<label>error</label><br />
+			<textarea id="error_message"></textarea>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			$('#submit').on('click', function(event){
+				$.get('/tickets/test/response', function(data){
+					console.log(data);
+					var result = $.parseJSON(data);
+					$('#data').show();
+					$('#email').val(result.email);
+					if(result.kings == true){	
+						$('#kings').val('Yes');
+					} else {
+						$('#kings').val('No');
+					}
+					$('#exp').val(result.exp);
+				}).fail(function (jqXHR){	
+					console.log(jqXHR);		
+					$('#error').show();
+					$('#error_message').val(jqXHR.responseJSON.error);
+				})
+			})
+		</script>
+	</body>
+</html>
+
