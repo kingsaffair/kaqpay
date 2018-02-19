@@ -76,8 +76,9 @@ def index():
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
-@app.route('/test/')
+@app.route('/test')
 def test():
+    app.logger.info("Access to test site")
     return render_template('test.html')
 
 @app.route('/test/kings')
