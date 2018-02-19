@@ -76,7 +76,7 @@ def index():
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
-@app.route('/test')
+@app.route('/test/')
 def test():
     return render_template('test.html')
 
@@ -91,7 +91,7 @@ def test_kings():
                                           enc=parse.urlencode({'jwt': encoded})))
 
 @app.route('/test/non_kings')
-def test_kings():
+def test_non_kings():
     payload = {'email': "test02@cam.ac.uk", 
                'kings': False, 
                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
