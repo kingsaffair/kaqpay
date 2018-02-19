@@ -118,13 +118,13 @@ def test_response():
         return res
     
 @app.errorhandler(jwt.exceptions.InvalidTokenError)
-def handle_invalid_tokens():
+def handle_invalid_tokens(error):
     return jsonify({'error': 'Invalid Key.'}), 400
     
 @app.errorhandler(jwt.exceptions.InvalidKeyError)
-def handle_invalid_keys():
+def handle_invalid_keys(error):
     return jsonify({'error': 'Invalid Key.'}), 400
 
 @app.errorhandler(AttributeError)
-def handle_invalid_tokens():
+def handle_invalid_tokens(error):
     return "Wrong way In!", 400
