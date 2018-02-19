@@ -54,8 +54,10 @@
 		</div>
 
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
-		<script type="text/javascript">
+		<script type="text/javascript">	
 			$('#submit').on('click', function(event){
+				$('#error').hide();
+				$('#data').hide();
 				$.ajax({
 					method: 'GET',
 					url: '/tickets/test/response',
@@ -64,15 +66,14 @@
 					}
 				}).done(function(data){
 					console.log(data);
-					var result = $.parseJSON(data);
 					$('#data').show();
-					$('#email').val(result.email);
-					if(result.kings == true){	
+					$('#email').val(data.email);
+					if(data.kings == true){	
 						$('#kings').val('Yes');
 					} else {
 						$('#kings').val('No');
 					}
-					$('#exp').val(result.exp);
+					$('#exp').val(new Date(data.exp));
 				}).fail(function (jqXHR){	
 					console.log(jqXHR);		
 					$('#error').show();
