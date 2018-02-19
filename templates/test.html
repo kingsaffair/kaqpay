@@ -56,7 +56,13 @@
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			$('#submit').on('click', function(event){
-				$.get('/tickets/test/response', function(data){
+				$.ajax({
+					method: 'GET',
+					url: '/tickets/test/response',
+					data: {
+						jwt: $('#jwt_input').val()
+					}
+				}).done(function(data){
 					console.log(data);
 					var result = $.parseJSON(data);
 					$('#data').show();
