@@ -12,8 +12,8 @@ if __name__ == '__main__':
         print("Running Already (pid: %d)".format(pidfile.read_pid()))
 
     # can use logging but why make things complicated?
-    stdout = open(app.config.get('STDOUT_LOG'), 'w+')
-    stderr = open(app.config.get('STDERR_LOG'), 'w+')
+    stdout = open(app.config.get('STDOUT_LOG'), 'a+')
+    stderr = open(app.config.get('STDERR_LOG'), 'a+')
 
     ctx = daemon.DaemonContext(
             working_directory=current_dir,
