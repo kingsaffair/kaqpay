@@ -30,7 +30,7 @@ stdout.addFilter(MaxLevelFilter(logging.WARNING))
 stdout.setLevel(logging.INFO)
 stderr.setLevel(logging.ERROR)
 
-fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s requested by %(remote_addr)s: %(message)s')
+fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 stdout.setFormatter(fmt)
 stderr.setFormatter(fmt)
 
