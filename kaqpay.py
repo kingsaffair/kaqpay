@@ -30,7 +30,7 @@ stdout.addFilter(MaxLevelFilter(logging.WARNING))
 stdout.setLevel(logging.INFO)
 stderr.setLevel(logging.ERROR)
 
-fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+fmt = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s requested by %(remote_addr)s: %(message)s')
 stdout.setFormatter(fmt)
 stderr.setFormatter(fmt)
 
@@ -120,12 +120,15 @@ def test_response():
     
 @app.errorhandler(jwt.exceptions.InvalidTokenError)
 def handle_invalid_tokens(error):
+    app.logger.error("Invalid Token Error.")
     return jsonify({'error': 'Invalid Key.'}), 400
     
 @app.errorhandler(jwt.exceptions.InvalidKeyError)
 def handle_invalid_keys(error):
+    app.logger.error("Invalid Key Error.")
     return jsonify({'error': 'Invalid Key.'}), 400
 
 @app.errorhandler(AttributeError)
-def handle_invalid_tokens(error):
+def handle_attribute_error(error):
+    app.logger.error("AttributeError.")
     return "Wrong way In!", 400
