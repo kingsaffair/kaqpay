@@ -9,7 +9,7 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     pidfile = PIDLockFile(app.config.get('PID_FILE'))
     if pidfile.is_locked():
-        print("Running Already (pid: %d)".format(pidfile.read_pid()))
+        print("Running Already (pid: {})".format(pidfile.read_pid()))
 
     # can use logging but why make things complicated?
     stdout = open(app.config.get('STDOUT_LOG'), 'a+')

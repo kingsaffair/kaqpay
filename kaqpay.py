@@ -76,47 +76,48 @@ def index():
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
-@app.route('/test')
-def test():
-    app.logger.info("Access to test site")
-    return render_template('test.html')
+if app.config.get('DEBUG'):
+    @app.route('/test')
+    def test():
+        app.logger.info("Access to test site")
+        return render_template('test.html')
 
-@app.route('/test/kings')
-def test_kings():
-    payload = {'email': "test01@cam.ac.uk", 
-               'kings': True, 
-               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
-    app.logger.info("Testing King's Member URL.")
-    encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
-    return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
-                                          enc=parse.urlencode({'jwt': encoded})))
+    @app.route('/test/kings')
+    def test_kings():
+        payload = {'email': "test01@cam.ac.uk", 
+                   'kings': True, 
+                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+        app.logger.info("Testing King's Member URL.")
+        encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
+        return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
+                                              enc=parse.urlencode({'jwt': encoded})))
 
-@app.route('/test/non_kings')
-def test_non_kings():
-    payload = {'email': "test02@cam.ac.uk", 
-               'kings': False, 
-               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
-    app.logger.info("Testing Non-King's University Member URL.")
-    encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
-    return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_UNI_URL'), 
-                                          enc=parse.urlencode({'jwt': encoded})))
+    @app.route('/test/non_kings')
+    def test_non_kings():
+        payload = {'email': "test02@cam.ac.uk", 
+                   'kings': False, 
+                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+        app.logger.info("Testing Non-King's University Member URL.")
+        encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
+        return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_UNI_URL'), 
+                                              enc=parse.urlencode({'jwt': encoded})))
 
-@app.route('/test/response')
-def test_response():
-    param = request.args.get('jwt')
-    if param is not None:
-        enc = parse.unquote(param)
-        algo = app.config.get('JWT_ALGORITHM')
-        if algo.startswith('RS'):
-            key = app.config.get('JWT_PUBLIC_KEY')
+    @app.route('/test/response')
+    def test_response():
+        param = request.args.get('jwt')
+        if param is not None:
+            enc = parse.unquote(param)
+            algo = app.config.get('JWT_ALGORITHM')
+            if algo.startswith('RS'):
+                key = app.config.get('JWT_PUBLIC_KEY')
+            else:
+                key = app.config.get('JWT_KEY')
+            result = jwt.decode(enc, key=key, algorithms=[algo])
+            return jsonify(result)
         else:
-            key = app.config.get('JWT_KEY')
-        result = jwt.decode(enc, key=key, algorithms=[algo])
-        return jsonify(result)
-    else:
-        res = jsonify({'error': 'Pass in a JWT.'})
-        res.status_code = 400
-        return res
+            res = jsonify({'error': 'Pass in a JWT.'})
+            res.status_code = 400
+            return res
     
 @app.errorhandler(jwt.exceptions.InvalidTokenError)
 def handle_invalid_tokens(error):
