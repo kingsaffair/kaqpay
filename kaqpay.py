@@ -3,8 +3,8 @@ from werkzeug.local import LocalProxy
 from ibisclient import *
 from functools import reduce
 from urllib import parse
+from datetime import datetime, timedelta
 import jwt
-import datetime
 
 import sys
 import logging
@@ -64,15 +64,18 @@ def index():
     person = methods.getPerson("crsid", crsid, fetch="all_insts")
     instids = list(map(lambda i: i.instid, person.institutions))
     is_kings = reduce(lambda x, y: x or y, [(i in instids) for i in app.config.get('KINGS')])
+    now = datetime.utcnow()
     payload = {'email': "{}@cam.ac.uk".format(crsid), 
                'kings': is_kings, 
-               'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+               'exp': now + timedelta(minutes = 1)}
     app.logger.info("%s logged in successfully. (kings: %s)", crsid, is_kings)
     encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
-    if is_kings:
+    if is_kings and now < datetime(2018,3,6,0,0):
         url = app.config.get('QPAY_KINGS_URL')
+        app.logger.info("sending %s to King's URL", crsid)
     else:
         url = app.config.get('QPAY_UNI_URL')
+        app.logger.info("sending %s to General Release URL", crsid)
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
@@ -87,7 +90,7 @@ if app.config.get('DEBUG'):
     def test_kings():
         payload = {'email': "test01@cam.ac.uk", 
                    'kings': True, 
-                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+                   'exp': datetime.utcnow() + timedelta(minutes = 1)}
         app.logger.info("Testing King's Member URL.")
         encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
         return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
@@ -97,7 +100,7 @@ if app.config.get('DEBUG'):
     def test_non_kings():
         payload = {'email': "test02@cam.ac.uk", 
                    'kings': False, 
-                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+                   'exp': datetime.utcnow() + timedelta(minutes = 1)}
         app.logger.info("Testing Non-King's University Member URL.")
         encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
         return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_UNI_URL'), 
