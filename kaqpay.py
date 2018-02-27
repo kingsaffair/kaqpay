@@ -86,7 +86,7 @@ if app.config.get('DEBUG'):
     def test_kings():
         payload = {'email': "test01@cam.ac.uk", 
                    'kings': True, 
-                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 1)}
+                   'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes = 15)}
         app.logger.info("Testing King's Member URL.")
         encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
         return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
