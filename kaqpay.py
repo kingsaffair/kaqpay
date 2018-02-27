@@ -67,7 +67,7 @@ def index():
     now = datetime.utcnow()
     payload = {'email': "{}@cam.ac.uk".format(crsid), 
                'kings': is_kings, 
-               'exp': now + timedelta(minutes = 1)}
+               'exp': now + timedelta(minutes = 15)}
     app.logger.info("%s logged in successfully. (kings: %s)", crsid, is_kings)
     encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
     if is_kings and now < datetime(2018,3,6,0,0):
@@ -79,7 +79,6 @@ def index():
     return redirect("{qpay}?{enc}".format(qpay=url, 
                                           enc=parse.urlencode({'jwt': encoded})))
 
-
 if app.config.get('DEBUG'):
     @app.route('/test')
     def test():
@@ -90,7 +89,7 @@ if app.config.get('DEBUG'):
     def test_kings():
         payload = {'email': "test01@cam.ac.uk", 
                    'kings': True, 
-                   'exp': datetime.utcnow() + timedelta(minutes = 1)}
+                   'exp': datetime.utcnow() + timedelta(minutes = 15)}
         app.logger.info("Testing King's Member URL.")
         encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
         return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_KINGS_URL'), 
@@ -100,7 +99,7 @@ if app.config.get('DEBUG'):
     def test_non_kings():
         payload = {'email': "test02@cam.ac.uk", 
                    'kings': False, 
-                   'exp': datetime.utcnow() + timedelta(minutes = 1)}
+                   'exp': datetime.utcnow() + timedelta(minutes = 15)}
         app.logger.info("Testing Non-King's University Member URL.")
         encoded = jwt.encode(payload, app.config.get('JWT_KEY'), algorithm=app.config.get('JWT_ALGORITHM')) 
         return redirect("{qpay}?{enc}".format(qpay=app.config.get('QPAY_UNI_URL'), 
