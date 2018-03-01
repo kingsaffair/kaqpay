@@ -61,8 +61,8 @@ methods = LocalProxy(getIbis)
 @app.route('/index.html')
 def index():
     crsid = request.headers.get('X-Aaprincipal').split(' ')[1]
-    person = methods.getPerson("crsid", crsid, fetch="all_insts")
-    instids = list(map(lambda i: i.instid, person.institutions))
+    person = methods.getPerson("crsid", crsid, fetch="all_attrs")
+    instids = list(map(lambda attr: attr.value, person.attributes))
     is_kings = reduce(lambda x, y: x or y, [(i in instids) for i in app.config.get('KINGS')])
     now = datetime.utcnow()
     payload = {'email': "{}@cam.ac.uk".format(crsid), 
